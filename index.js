@@ -191,16 +191,74 @@ document.addEventListener("mousemove", e => {
 
 // CLUE
 
-let motionBuffer = [];
+/* =========================
+   STATE
+   ========================= */
+
+let clueUnlocked = false;
+
+const movements = [];
+
 let lastX = null;
 let lastY = null;
-let unlocked = false;
 
+let startTime = null;
+let armed = false;
+
+const MIN_TIME = 2500;
+const MIN_SAMPLES = 18;
+const JITTER = 8;
+
+const normalize = (v) => Math.round(v / 10);
+
+const alpha = 0.65;
+
+/* =========================
+   STABLE FIBONACCI CHECK
+   ========================= */
+
+const isDampedFibonacci = (arr) => {
+
+    if (arr.length < MIN_SAMPLES) return false;
+
+    for (let i = 2; i < arr.length; i++) {
+
+        const expected =
+            alpha * (arr[i - 1] + arr[i - 2]) +
+            (1 - alpha) * arr[i - 1];
+
+        const error = Math.abs(arr[i] - expected);
+
+        if (error > 3.5) return false;
+    }
+
+    return true;
+};
+
+/* =========================
+   DIRECTION STABILITY CHECK
+   ========================= */
+
+const isStableDirection = (dx, dy) => {
+
+    const angle = Math.atan2(dy, dx);
+    movements.angle = movements.angle || angle;
+
+    const diff = Math.abs(angle - movements.angle);
+
+    movements.angle = angle;
+
+    return diff < 1.2; // must be somewhat coherent motion
+};
+
+/* =========================
+   MAIN LISTENER
+   ========================= */
 if (!isMobile || isTablet) {
 
     document.addEventListener("mousemove", (e) => {
 
-        if (unlocked) return;
+        if (clueUnlocked) return;
 
         if (lastX === null) {
             lastX = e.clientX;
@@ -213,41 +271,56 @@ if (!isMobile || isTablet) {
 
         const dist = Math.sqrt(dx * dx + dy * dy);
 
-        if (dist > 5) {
+        lastX = e.clientX;
+        lastY = e.clientY;
 
-            motionBuffer.push(dist);
-            if (motionBuffer.length > 20) motionBuffer.shift();
+        /* ignore micro jitter */
+        if (dist < JITTER) return;
 
-            /* compute entropy-like variance */
-            const avg =
-                motionBuffer.reduce((a, b) => a + b, 0) / motionBuffer.length;
+        /* start timer ONLY on real motion */
+        if (!startTime) {
+            startTime = performance.now();
+            return;
+        }
 
-            const variance =
-                motionBuffer.reduce((a, b) => a + Math.pow(b - avg, 2), 0) /
-                motionBuffer.length;
+        const elapsed = performance.now() - startTime;
 
-            /* unlock condition */
-            if (motionBuffer.length === 20 && variance > 1800) {
+        /* HARD LOCK BEFORE ACTIVITY */
+        if (elapsed < MIN_TIME) return;
 
-                unlocked = true;
+        /* must maintain directional coherence */
+        if (!isStableDirection(dx, dy)) {
+            movements.length = 0; // reset if chaotic
+            return;
+        }
 
-                const clue = document.createElement("div");
-                clue.id = "hidden-clue";
-                clue.textContent = "Verba volant, musicae manent";
-                document.body.appendChild(clue);
+        movements.push(normalize(dist));
 
+        if (movements.length > MIN_SAMPLES) {
+            movements.shift();
+        }
+
+        /* not enough data yet */
+        if (movements.length < MIN_SAMPLES) return;
+
+        /* final validation */
+        if (isDampedFibonacci(movements)) {
+
+            clueUnlocked = true;
+
+            const clue = document.createElement("div");
+            clue.id = "hidden-clue";
+            clue.textContent = "Verba volant, musicae manent";
+            document.body.appendChild(clue);
+
+            requestAnimationFrame(() => {
                 clue.classList.add("visible");
+            });
 
-                document.querySelectorAll(".drop")
-                    .forEach(d => d.classList.add("bump"));
+            const target = document.querySelector("#minutes .card");
+            if (target) target.classList.add("glitch");
 
-                setTimeout(() => {
-                    clue.remove();
-                }, 3500);
-            }
-
-            lastX = e.clientX;
-            lastY = e.clientY;
+            setTimeout(() => clue.remove(), 3500);
         }
     });
 }
