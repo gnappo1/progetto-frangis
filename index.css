@@ -1,0 +1,152 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: "Inter", sans-serif;
+    background: radial-gradient(circle at top, #0b0b14, #050508);
+    color: white;
+    overflow: hidden;
+}
+
+/* CANVAS LAYER */
+#particles {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none;
+}
+
+/* ORBS */
+.orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(120px);
+    opacity: 0.25;
+    z-index: 1;
+    pointer-events: none;
+}
+
+.orb1 {
+    width: 520px;
+    height: 520px;
+    background: #7c4dff;
+    top: -120px;
+    left: -120px;
+}
+
+.orb2 {
+    width: 420px;
+    height: 420px;
+    background: #00d4ff;
+    bottom: -120px;
+    right: -120px;
+}
+
+/* MAIN */
+.container {
+    position: relative;
+    z-index: 2;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.eyebrow {
+    opacity: 0.6;
+    letter-spacing: 0.5em;
+    font-size: 12px;
+    margin-bottom: 20px;
+}
+
+.title {
+    font-size: clamp(50px, 7vw, 120px);
+    font-weight: 800;
+    margin-bottom: 10px;
+}
+
+.subtitle {
+    opacity: 0.6;
+    max-width: 700px;
+    margin-bottom: 80px;
+}
+
+/* countdown */
+.countdown {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+}
+
+/* drop */
+.drop {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 56px;
+    font-weight: 800;
+
+    background: radial-gradient(circle at top, rgba(255,255,255,0.18), rgba(255,255,255,0.03));
+    border: 1px solid rgba(255,255,255,0.12);
+
+    box-shadow: 0 40px 120px rgba(0,0,0,0.6);
+
+    transform: translateY(-40px);
+    opacity: 0;
+
+    transition: 0.8s cubic-bezier(0.2, 0.9, 0.2, 1);
+}
+
+.drop.show {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.small {
+    width: 110px;
+    height: 110px;
+    font-size: 40px;
+}
+
+/* footer */
+#footer {
+    position: absolute;
+    bottom: 24px;
+    width: 100%;
+    text-align: center;
+    opacity: 0.4;
+}
+
+/* clue */
+
+#hidden-clue {
+    position: fixed;
+    right: 8%;
+    bottom: 12%;
+    font-family: "Cormorant Garamond", serif;
+    font-style: italic;
+    font-size: 2rem;
+
+    opacity: 0;
+    transform: translateY(10px);
+
+    transition: 1.2s ease;
+    pointer-events: none;
+}
+
+#hidden-clue.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
