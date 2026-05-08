@@ -4,11 +4,15 @@
     box-sizing: border-box;
 }
 
+/* MAIN */
 body {
     font-family: "Inter", sans-serif;
     background: radial-gradient(circle at top, #0b0b14, #050508);
     color: white;
+
     overflow: hidden;
+
+    height: 100dvh;
 }
 
 /* CANVAS LAYER */
@@ -47,16 +51,21 @@ body {
     right: -120px;
 }
 
-/* MAIN */
+/* MAIN LAYOUT WRAPPER */
 .container {
     position: relative;
     z-index: 2;
-    min-height: 100vh;
+
+    height: 100dvh;
+
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
+
     text-align: center;
+
+    padding: clamp(20px, 5vw, 80px);
 }
 
 .eyebrow {
@@ -122,11 +131,21 @@ body {
 
 /* footer */
 #footer {
-    position: absolute;
-    bottom: 24px;
+    position: fixed;
+    bottom: env(safe-area-inset-bottom, 16px);
+    left: 0;
     width: 100%;
+
     text-align: center;
+
+    padding: 12px;
+
+    font-size: 12px;
     opacity: 0.4;
+
+    z-index: 10;
+
+    pointer-events: none;
 }
 
 /* clue */
@@ -149,4 +168,46 @@ body {
 #hidden-clue.visible {
     opacity: 1;
     transform: translateY(0);
+}
+
+#particles {
+    z-index: 0;
+}
+
+.orb {
+    z-index: 1;
+}
+
+.container {
+    z-index: 2;
+}
+
+#footer {
+    z-index: 10;
+}
+
+@media (max-width: 768px) {
+
+    .countdown {
+        gap: 14px;
+        transform: scale(0.92);
+    }
+
+    .drop {
+        width: 120px;
+        height: 120px;
+        font-size: 44px;
+    }
+
+    .small {
+        width: 95px;
+        height: 95px;
+        font-size: 36px;
+    }
+
+    .subtitle {
+        margin-bottom: 50px;
+        font-size: 14px;
+        padding: 0 12px;
+    }
 }
