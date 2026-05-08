@@ -1,4 +1,7 @@
 const targetDate = new Date("2026-05-11T19:30:00+02:00");
+const isMobile = window.matchMedia("(max-width: 768px)").matches;
+const isTouch = "ontouchstart" in window || navigator.maxTouchPoints > 0;
+const isTablet = isTouch && window.innerWidth >= 768;
 
 /* countdown */
 const units = {
@@ -193,55 +196,58 @@ let lastX = null;
 let lastY = null;
 let unlocked = false;
 
-document.addEventListener("mousemove", (e) => {
+if (!isMobile || isTablet) {
 
-    if (unlocked) return;
+    document.addEventListener("mousemove", (e) => {
 
-    if (lastX === null) {
-        lastX = e.clientX;
-        lastY = e.clientY;
-        return;
-    }
+        if (unlocked) return;
 
-    const dx = e.clientX - lastX;
-    const dy = e.clientY - lastY;
-
-    const dist = Math.sqrt(dx * dx + dy * dy);
-
-    if (dist > 5) {
-
-        motionBuffer.push(dist);
-        if (motionBuffer.length > 20) motionBuffer.shift();
-
-        /* compute entropy-like variance */
-        const avg =
-            motionBuffer.reduce((a, b) => a + b, 0) / motionBuffer.length;
-
-        const variance =
-            motionBuffer.reduce((a, b) => a + Math.pow(b - avg, 2), 0) /
-            motionBuffer.length;
-
-        /* unlock condition */
-        if (motionBuffer.length === 20 && variance > 1800) {
-
-            unlocked = true;
-
-            const clue = document.createElement("div");
-            clue.id = "hidden-clue";
-            clue.textContent = "Verba volant, musicae manent";
-            document.body.appendChild(clue);
-
-            clue.classList.add("visible");
-
-            document.querySelectorAll(".drop")
-                .forEach(d => d.classList.add("bump"));
-
-            setTimeout(() => {
-                clue.remove();
-            }, 3500);
+        if (lastX === null) {
+            lastX = e.clientX;
+            lastY = e.clientY;
+            return;
         }
 
-        lastX = e.clientX;
-        lastY = e.clientY;
-    }
-});
+        const dx = e.clientX - lastX;
+        const dy = e.clientY - lastY;
+
+        const dist = Math.sqrt(dx * dx + dy * dy);
+
+        if (dist > 5) {
+
+            motionBuffer.push(dist);
+            if (motionBuffer.length > 20) motionBuffer.shift();
+
+            /* compute entropy-like variance */
+            const avg =
+                motionBuffer.reduce((a, b) => a + b, 0) / motionBuffer.length;
+
+            const variance =
+                motionBuffer.reduce((a, b) => a + Math.pow(b - avg, 2), 0) /
+                motionBuffer.length;
+
+            /* unlock condition */
+            if (motionBuffer.length === 20 && variance > 1800) {
+
+                unlocked = true;
+
+                const clue = document.createElement("div");
+                clue.id = "hidden-clue";
+                clue.textContent = "Verba volant, musicae manent";
+                document.body.appendChild(clue);
+
+                clue.classList.add("visible");
+
+                document.querySelectorAll(".drop")
+                    .forEach(d => d.classList.add("bump"));
+
+                setTimeout(() => {
+                    clue.remove();
+                }, 3500);
+            }
+
+            lastX = e.clientX;
+            lastY = e.clientY;
+        }
+    });
+}
